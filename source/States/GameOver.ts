@@ -73,15 +73,11 @@ module MUR {
 
         }
 
+        update(){
 
+if(isGameReset()){ MUR.resetAll(); }
 
-
-
-
-
-
-
-
+        }
 
 
     }

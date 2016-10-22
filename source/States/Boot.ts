@@ -59,9 +59,12 @@ module MUR{
 
      create(){
            
-           //console.log("boot create")
+           
             this.game.stage.backgroundColor = '#000000';
-			this.game.stage.disableVisibilityChange = true;
+			let _stillFocus = MUR.getUrlParameter("stillFocus") ? true : false;
+			
+			this.game.stage.disableVisibilityChange = _stillFocus;
+
 		    this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 		    this.game.stage.smoothed=false;
 		    this.game.scale.pageAlignHorizontally = true;

@@ -87,8 +87,15 @@ var MUR;
             this.aboutBtn.anchor.setTo(0.5);
             this.aboutBtn.inputEnabled = true;
             this.aboutBtn.events.onInputDown.add(function () { MUR.goState("MenuAbout", this.game); }, this);
+            this.settingsBtn = this.game.add.sprite(950, 30, "settings-btn");
+            this.settingsBtn.anchor.setTo(0.5);
+            this.settingsBtn.inputEnabled = true;
+            this.settingsBtn.events.onInputDown.add(function () { MUR.goState("MenuSettings", this.game); }, this);
         };
         Menu.prototype.update = function () {
+            if (MUR.isGameReset()) {
+                MUR.resetAll();
+            }
             this.menuBg.tilePosition.x -= 0.5;
         };
         Menu.prototype.setPlayerAlpha = function () {
@@ -110,6 +117,11 @@ var MUR;
         function Preloader() {
             _super.apply(this, arguments);
         }
+        Preloader.prototype.update = function () {
+            if (MUR.isGameReset()) {
+                MUR.resetAll();
+            }
+        };
         Preloader.prototype.preload = function () {
             this.game.load.onLoadStart.add(function () { }, this);
             this.game.load.onFileComplete.add(this.fileComplete, this);
@@ -120,7 +132,7 @@ var MUR;
             }, this);
             //start button
             //--------------------------
-            this.startBtn = this.game.add.sprite(this.game.world.width / 2, this.game.world.height / 2, this.game.cache.getBitmapData('startBtn'));
+            this.startBtn = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, this.game.cache.getBitmapData('startBtn'));
             this.startBtn.anchor.setTo(0.5);
             var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
             _spriteText.anchor.set(0.5);
@@ -134,7 +146,7 @@ var MUR;
             //Loading container
             //--------------------------
             this.game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-            this.loadingBar = this.game.add.sprite(this.game.world.width / 2, this.game.world.height / 2, this.game.cache.getBitmapData('loadingBar'));
+            this.loadingBar = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, this.game.cache.getBitmapData('loadingBar'));
             this.loadingBar.anchor.setTo(0.5);
             this.loadingPerc = this.game.add.text(0, 0, '0%', { wordWrap: true, wordWrapWidth: this.loadingBar.width, fill: '#ffffff', stroke: '#ff0000', strokeThickness: 5 });
             this.loadingPerc.anchor.set(0.5);
@@ -215,9 +227,9 @@ var MUR;
             this.game.cache.addBitmapData('band2', bmd);
         };
         Boot.prototype.create = function () {
-            //console.log("boot create")
             this.game.stage.backgroundColor = '#000000';
-            this.game.stage.disableVisibilityChange = true;
+            var _stillFocus = MUR.getUrlParameter("stillFocus") ? true : false;
+            this.game.stage.disableVisibilityChange = _stillFocus;
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             this.game.stage.smoothed = false;
             this.game.scale.pageAlignHorizontally = true;
@@ -242,11 +254,11 @@ var MUR;
             this.menuBg = this.game.add.tileSprite(0, 0, 1024, 600, 'menu-background');
             this.game.add.sprite(0, 0, "menu-trasparency");
             var _style = { font: 'normal 50px', fill: '#ffffff', stroke: '#000000', strokeThickness: 5 };
-            var _nameTxt = this.game.add.text(this.game.world.width / 2, 75, "ABOUT", _style);
+            var _nameTxt = this.game.add.text(this.game.world.centerX, 75, "ABOUT", _style);
             _nameTxt.font = 'Press Start 2P';
             _nameTxt.anchor.set(.5);
             _style = { font: 'normal 18px', fill: '#ffffff', stroke: '#000000', strokeThickness: 0 };
-            var _aboutTxt = this.game.add.text(this.game.world.width / 2, 160, "This game was made using the following technologies", _style);
+            var _aboutTxt = this.game.add.text(this.game.world.centerX, 160, "This game was made using the following technologies", _style);
             _aboutTxt.font = 'Press Start 2P';
             _aboutTxt.anchor.set(.5);
             var _logo1 = this.game.add.sprite(0, 0, "logo-meetup");
@@ -265,7 +277,7 @@ var MUR;
             this.logoGroup.addMultiple([_logo1, _logo2, _logo3, _logo4, _logo5, _logo6]);
             this.logoGroup.y = 250;
             this.logoGroup.x = 80;
-            this.backBtn = this.game.add.sprite(512, 550, this.game.cache.getBitmapData('startBtn'));
+            this.backBtn = this.game.add.sprite(this.game.world.centerX, 550, this.game.cache.getBitmapData('startBtn'));
             this.backBtn.anchor.setTo(0.5);
             var _spriteText = this.game.add.text(0, 0, 'BACK', { fill: '#ffffff' });
             _spriteText.anchor.set(0.5);
@@ -274,6 +286,9 @@ var MUR;
             this.backBtn.events.onInputDown.add(function () { MUR.goState("Menu", this.game); }, this);
         };
         MenuAbout.prototype.update = function () {
+            if (MUR.isGameReset()) {
+                MUR.resetAll();
+            }
             this.menuBg.tilePosition.x -= 0.5;
         };
         return MenuAbout;
@@ -290,7 +305,7 @@ var MUR;
             this.readyOnce = true;
             this.readyOnceEnd = true;
             this.currentPlayerExist = false;
-            this.goal = 2000;
+            this.goal = settings.goalDistance;
         }
         GameState.prototype.preload = function () { };
         GameState.prototype.create = function () {
@@ -320,7 +335,7 @@ var MUR;
             _nameTxt.font = 'Press Start 2P';
             _nameTxt.fixedToCamera = true;
             _style = { font: 'normal 56px', fill: '#ffff00', stroke: '#fd8708', strokeThickness: 10 };
-            this.readyText = this.game.add.text(530, this.game.world.height / 2, 'GET READY!', _style);
+            this.readyText = this.game.add.text(530, this.game.world.centerY, 'GET READY!', _style);
             this.readyText.font = 'Press Start 2P';
             this.readyText.anchor.set(0.5);
             this.readyText.alpha = 0;
@@ -332,6 +347,9 @@ var MUR;
             this.fb.getAll();
         };
         GameState.prototype.update = function () {
+            if (MUR.isGameReset()) {
+                MUR.resetAll();
+            }
             this.introCloud1.tilePosition.x -= 0.27;
             this.introCloud2.tilePosition.x -= 0.13;
             //make it only one time                
@@ -362,9 +380,11 @@ var MUR;
         GameState.prototype.addStartBtn = function () {
             //check for me
             //if (this.playerObj.id != 199420979) return;
-            if (this.playerGroup.length > 1)
+            // if settings.playerIdStarter is set with a valid meetup user id attach the start only to this user
+            if (settings.playerIdStarter != -1 && this.playerObj.id != settings.playerIdStarter)
                 return;
-            this.startBtn = this.game.add.sprite(800, 100, this.game.cache.getBitmapData('startBtn'));
+            //if(this.playerGroup.length>1) return;
+            this.startBtn = this.game.add.sprite(512, this.game.world.centerY + 80, this.game.cache.getBitmapData('startBtn'));
             this.startBtn.anchor.setTo(0.5);
             var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
             _spriteText.anchor.set(0.5);
@@ -372,8 +392,7 @@ var MUR;
             this.startBtn.inputEnabled = true;
             this.backGroup.add(this.startBtn);
             this.startBtn.events.onInputDown.add(function (context) {
-                var fb = MUR.getFbInstance();
-                fb.startGame();
+                MUR.getFbInstance().startGame();
                 context.kill();
                 context.destroy();
             }, this.startBtn);
@@ -421,7 +440,7 @@ var MUR;
                 }
             }
             this.resortGroup();
-            console.log("groupPlayer length:" + this.playerGroup.length);
+            //console.log("groupPlayer length:" + this.playerGroup.length);
         };
         GameState.prototype.addPlayers = function (data) {
             if (!data.active)
@@ -453,7 +472,7 @@ var MUR;
                 }
             }
             this.resortGroup();
-            console.log("groupPlayer length:" + this.playerGroup.length);
+            // console.log("groupPlayer length:" + this.playerGroup.length);
         };
         GameState.prototype.resortGroup = function () {
             this.playerGroup.customSort(function (a, b) {
@@ -512,6 +531,11 @@ var MUR;
             var fb = MUR.getFbInstance();
             fb.resetGame();
         };
+        GameOver.prototype.update = function () {
+            if (MUR.isGameReset()) {
+                MUR.resetAll();
+            }
+        };
         return GameOver;
     }(Phaser.State));
     MUR.GameOver = GameOver;
@@ -537,6 +561,7 @@ var MUR;
     var _startRun = false;
     var _winner = 0;
     var _playerAvatar = 0;
+    var _reset = false;
     function setListObj(_val) { _newList = _val; }
     MUR.setListObj = setListObj;
     function getListObj() { return _newList; }
@@ -545,6 +570,11 @@ var MUR;
     MUR.setGameObj = setGameObj;
     function getGameObj() { return _newGame; }
     MUR.getGameObj = getGameObj;
+    //check if game is reset
+    function setReset(_val) { _reset = _val; }
+    MUR.setReset = setReset;
+    function isGameReset() { return _reset; }
+    MUR.isGameReset = isGameReset;
     //check if game is ended
     function setGameEnded(_val) { _gameEnded = _val; }
     MUR.setGameEnded = setGameEnded;
@@ -568,6 +598,17 @@ var MUR;
     MUR.showMemebers = showMemebers;
     function hideMemebers() { getListObj().rsvpListHide(); }
     MUR.hideMemebers = hideMemebers;
+    function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)), sURLVariables = sPageURL.split('&'), sParameterName, i;
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    }
+    MUR.getUrlParameter = getUrlParameter;
+    ;
     function goState(_state, _game) {
         var st = _game.plugins.add(Phaser.Plugin.StateTransition);
         st.configure({
@@ -617,15 +658,21 @@ var MUR;
         hideMemebers();
     }
     MUR.login = login;
+    function resetAll() {
+        localStorage.removeItem("mrLogged");
+        getFbInstance().resetGame();
+        getFbInstance().removeAllLogged();
+        window.location.reload();
+    }
+    MUR.resetAll = resetAll;
     window.onresize = function () { getListObj().getrsvpList().css({ width: window.innerWidth, height: window.innerHeight }); };
     window.onload = function () {
         setFbInstance(new MUR.initFb());
-        var _obj = localStorage.getItem("mrLogged");
-        if (_obj != undefined)
-            _obj = JSON.parse(_obj);
         setListObj(new MUR.initList());
         setGameObj(new MUR.initGame(1024, 600));
-        if (_obj.id != undefined) {
+        var _obj = localStorage.getItem("mrLogged");
+        if (_obj != null) {
+            _obj = JSON.parse(_obj);
             setPlayerId(_obj.id);
             getListObj().rsvpListHide();
         }
@@ -658,6 +705,7 @@ var gameData = {
             { name: "logo-vscode", path: "assets/images/game/logo-vscode.png" },
             { name: "menu-background", path: "assets/images/game/menu-background.jpg" },
             { name: "menu-trasparency", path: "assets/images/game/menu-trasparency.png" },
+            { name: "settings-btn", path: "assets/images/game/settings.png" },
             { name: "about-btn", path: "assets/images/game/about.png" }
         ],
         sounds: [],
@@ -730,7 +778,7 @@ var MUR;
         }
         Player.prototype.update = function () {
             if (this.x > this.gameState.goal) {
-                this.gameState.fb.setWinner(this.id);
+                MUR.getFbInstance().setWinner(this.id);
                 this.gameState.gameOver();
             }
         };
@@ -890,6 +938,9 @@ var MUR;
             var win = this.fb.database().ref('winner');
             win.set(0);
             win.on('value', function (data) { MUR.setWinner(data.val()); });
+            var reset = this.fb.database().ref('reset');
+            reset.set(false);
+            reset.on('value', function (data) { MUR.setReset(data.val()); });
             var players = this.fb.database().ref('players');
             players.on('child_added', function (data) {
                 if (MUR.isGameStarted())
@@ -912,17 +963,27 @@ var MUR;
                 }
             });
         }
+        initFb.prototype.sendReset = function () {
+            var reset = this.fb.database().ref('reset');
+            reset.set(true);
+        };
         initFb.prototype.resetGame = function () {
-            this.removeUsers();
+            this.removeAllUsers();
             var start = this.fb.database().ref('start');
             start.set(false);
             var end = this.fb.database().ref('end');
             end.set(false);
             var winner = this.fb.database().ref('winner');
             winner.set(0);
+            // var reset = this.fb.database().ref('reset');
+            // reset.set(false);
         };
-        initFb.prototype.removeUsers = function () {
+        initFb.prototype.removeAllUsers = function () {
             var rem = this.fb.database().ref('players');
+            rem.remove();
+        };
+        initFb.prototype.removeAllLogged = function () {
+            var rem = this.fb.database().ref('logged');
             rem.remove();
         };
         initFb.prototype.removeUser = function (id) {
@@ -981,6 +1042,7 @@ var MUR;
             this.game.state.add("Preloader", MUR.Preloader, false);
             this.game.state.add("Menu", MUR.Menu, false);
             this.game.state.add("MenuAbout", MUR.MenuAbout, false);
+            this.game.state.add("MenuSettings", MUR.MenuSettings, false);
             this.game.state.add("Game", MUR.GameState, false);
             this.game.state.add("GameOver", MUR.GameOver, false);
             this.game.state.start("Boot");
@@ -1104,5 +1166,54 @@ var settings = {
         databaseURL: "https://firsttest-79dd5.firebaseio.com",
         storageBucket: "",
     },
-    meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true"
+    meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
+    goalDistance: 2000,
+    playerIdStarter: -1 //199420979 Francesco Raimondo meetup id
 };
+/// <reference path="../Lib/phaser.d.ts"/>
+var MUR;
+(function (MUR) {
+    var MenuSettings = (function (_super) {
+        __extends(MenuSettings, _super);
+        function MenuSettings() {
+            _super.call(this);
+        }
+        MenuSettings.prototype.preload = function () {
+        };
+        MenuSettings.prototype.create = function () {
+            this.menuBg = this.game.add.tileSprite(0, 0, 1024, 600, 'menu-background');
+            this.game.add.sprite(0, 0, "menu-trasparency");
+            var _style = { font: 'normal 50px', fill: '#ffffff', stroke: '#000000', strokeThickness: 5 };
+            var _nameTxt = this.game.add.text(this.game.world.centerX, 75, "Settings", _style);
+            _nameTxt.font = 'Press Start 2P';
+            _nameTxt.anchor.set(.5);
+            this.backBtn = this.game.add.sprite(512, 550, this.game.cache.getBitmapData('startBtn'));
+            this.backBtn.anchor.setTo(0.5);
+            var _spriteText = this.game.add.text(0, 0, 'BACK', { fill: '#ffffff' });
+            _spriteText.anchor.set(0.5);
+            this.backBtn.addChild(_spriteText);
+            this.backBtn.inputEnabled = true;
+            this.backBtn.events.onInputDown.add(function () { MUR.goState("Menu", this.game); }, this);
+            var _reset = this.game.add.text(10, 200, 'Reset ALL', { fill: '#ffffff' });
+            _reset.inputEnabled = true;
+            _reset.events.onInputDown.add(function () { MUR.getFbInstance().sendReset(); }, this);
+            var _resetLogged = this.game.add.text(10, 240, 'Reset Logged', { fill: '#ffffff' });
+            _resetLogged.inputEnabled = true;
+            _resetLogged.events.onInputDown.add(function () { MUR.getFbInstance().removeAllLogged(); }, this);
+            var _resetPlayers = this.game.add.text(10, 280, 'Reset Players', { fill: '#ffffff' });
+            _resetPlayers.inputEnabled = true;
+            _resetPlayers.events.onInputDown.add(function () { MUR.getFbInstance().removeAllUsers(); }, this);
+            var _startGame = this.game.add.text(10, 320, 'Start Game', { fill: '#ffffff' });
+            _startGame.inputEnabled = true;
+            _startGame.events.onInputDown.add(function () { MUR.getFbInstance().startGame(); }, this);
+        };
+        MenuSettings.prototype.update = function () {
+            if (MUR.isGameReset()) {
+                MUR.resetAll();
+            }
+            this.menuBg.tilePosition.x -= 0.5;
+        };
+        return MenuSettings;
+    }(Phaser.State));
+    MUR.MenuSettings = MenuSettings;
+})(MUR || (MUR = {}));

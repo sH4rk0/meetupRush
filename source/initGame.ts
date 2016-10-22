@@ -21,9 +21,12 @@ module MUR {
             this.game.state.add("Preloader", Preloader,false);
             this.game.state.add("Menu", Menu,false);
             this.game.state.add("MenuAbout", MenuAbout,false);
+            this.game.state.add("MenuSettings", MenuSettings,false);
             this.game.state.add("Game", GameState,false);
             this.game.state.add("GameOver", GameOver,false);
             this.game.state.start("Boot");
+
+           
   
         }
 

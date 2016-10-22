@@ -21,12 +21,17 @@ module MUR {
     let _startRun: boolean = false;
     let _winner: number = 0;
     let _playerAvatar: number = 0;
+    let _reset: boolean = false;
 
     export function setListObj(_val: initList): void { _newList = _val; }
     export function getListObj(): initList { return _newList; }
 
     export function setGameObj(_val: initGame): void { _newGame = _val; }
     export function getGameObj(): initGame { return _newGame; }
+
+     //check if game is reset
+    export function setReset(_val: boolean): void { _reset = _val; }
+    export function isGameReset(): boolean { return _reset; }
 
     //check if game is ended
     export function setGameEnded(_val: boolean): void { _gameEnded = _val; }
@@ -45,6 +50,21 @@ module MUR {
 
     export function showMemebers(): void { getListObj().rsvpListContainerShow(); }
     export function hideMemebers(): void { getListObj().rsvpListHide(); }
+
+    export function getUrlParameter(sParam: string): any {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
 
     export function goState(_state: string, _game: Phaser.Game): void {
 
@@ -80,7 +100,7 @@ module MUR {
 
     }
 
-    export function logout(_game: Phaser.Game) {
+    export function logout(_game: Phaser.Game): void {
 
         localStorage.removeItem("mrLogged");
         getFbInstance().logout(MUR.getPlayerId());
@@ -89,7 +109,7 @@ module MUR {
 
     }
 
-    export function login(id: number) {
+    export function login(id: number): void {
 
         localStorage.setItem("mrLogged", JSON.stringify({ id: id }));
         getFbInstance().logUser(id, { id: id });
@@ -98,20 +118,26 @@ module MUR {
 
     }
 
+    export function resetAll(): void{
+
+        localStorage.removeItem("mrLogged");
+        getFbInstance().resetGame()
+        getFbInstance().removeAllLogged();
+        window.location.reload();
+
+    }
+
     window.onresize = () => { getListObj().getrsvpList().css({ width: window.innerWidth, height: window.innerHeight }); }
     window.onload = () => {
 
 
         setFbInstance(new initFb());
-
-        var _obj: any = localStorage.getItem("mrLogged");
-        if (_obj != undefined) _obj = JSON.parse(_obj);
-
         setListObj(new initList());
         setGameObj(new initGame(1024, 600));
 
-        if (_obj.id != undefined) {
-
+        var _obj: any = localStorage.getItem("mrLogged");
+        if (_obj != null) {
+            _obj = JSON.parse(_obj);
             setPlayerId(_obj.id);
             getListObj().rsvpListHide();
 
@@ -157,7 +183,9 @@ var gameData = {
             { name: "logo-vscode", path: "assets/images/game/logo-vscode.png" },
             { name: "menu-background", path: "assets/images/game/menu-background.jpg" },
             { name: "menu-trasparency", path: "assets/images/game/menu-trasparency.png" },
+            { name: "settings-btn", path: "assets/images/game/settings.png" },
             { name: "about-btn", path: "assets/images/game/about.png" }
+            
 
         ],
 

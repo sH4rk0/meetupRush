@@ -81,7 +81,7 @@ module MUR {
                         _nameTxt.fixedToCamera = true;
 
                         _style = { font: 'normal 56px', fill: '#ffff00', stroke: '#fd8708', strokeThickness: 10 };
-                        this.readyText = this.game.add.text(530, this.game.world.height / 2, 'GET READY!', _style);
+                        this.readyText = this.game.add.text(530, this.game.world.centerY, 'GET READY!', _style);
                         this.readyText.font = 'Press Start 2P';
                         this.readyText.anchor.set(0.5);
                         this.readyText.alpha = 0;
@@ -100,7 +100,7 @@ module MUR {
                 }
 
                 update() {
-
+                        if(isGameReset()){ MUR.resetAll(); }
                         this.introCloud1.tilePosition.x -= 0.27;
                         this.introCloud2.tilePosition.x -= 0.13;
 
@@ -153,7 +153,7 @@ module MUR {
 
                         //if(this.playerGroup.length>1) return;
 
-                        this.startBtn = this.game.add.sprite(800, 100, this.game.cache.getBitmapData('startBtn'));
+                        this.startBtn = this.game.add.sprite(512, this.game.world.centerY+80, this.game.cache.getBitmapData('startBtn'));
                         this.startBtn.anchor.setTo(0.5);
 
                         var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
@@ -165,8 +165,7 @@ module MUR {
                         this.backGroup.add(this.startBtn);
                         this.startBtn.events.onInputDown.add(function (context: Phaser.Sprite) {
 
-                                var fb: initFb = MUR.getFbInstance();
-                                fb.startGame();
+                                MUR.getFbInstance().startGame();
                                 context.kill();
                                 context.destroy();
 
@@ -236,7 +235,7 @@ module MUR {
 
                         this.resortGroup();
 
-                        console.log("groupPlayer length:" + this.playerGroup.length);
+                        //console.log("groupPlayer length:" + this.playerGroup.length);
                 }
 
 
@@ -273,7 +272,7 @@ module MUR {
                         }
 
                         this.resortGroup();
-                        console.log("groupPlayer length:" + this.playerGroup.length);
+                       // console.log("groupPlayer length:" + this.playerGroup.length);
                 }
 
                 resortGroup(): void {

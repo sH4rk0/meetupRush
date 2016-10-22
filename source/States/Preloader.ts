@@ -11,7 +11,10 @@ module MUR {
         loadingPerc: Phaser.Text;
 
        
+		update(){
 
+				 if(isGameReset()){ MUR.resetAll(); }
+		}
         preload() {
 
           	this.game.load.onLoadStart.add(function(){ }, this);
@@ -29,7 +32,7 @@ module MUR {
 
 	   	//start button
 		//--------------------------
-	   		this.startBtn=this.game.add.sprite(this.game.world.width/2,this.game.world.height/2,this.game.cache.getBitmapData('startBtn'));
+	   		this.startBtn=this.game.add.sprite(this.game.world.centerX,this.game.world.centerY,this.game.cache.getBitmapData('startBtn'));
 		    this.startBtn.anchor.setTo(0.5);
 	   			
 	   		  var _spriteText=this.game.add.text(0,0, 'START', { fill: '#ffffff'});
@@ -55,7 +58,7 @@ module MUR {
 	   //--------------------------
 		this.game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 
-		this.loadingBar=this.game.add.sprite(this.game.world.width/2,this.game.world.height/2,this.game.cache.getBitmapData('loadingBar'));
+		this.loadingBar=this.game.add.sprite(this.game.world.centerX,this.game.world.centerY,this.game.cache.getBitmapData('loadingBar'));
 		this.loadingBar.anchor.setTo(0.5);
 		this.loadingPerc = this.game.add.text(0,0, '0%', {wordWrap: true, wordWrapWidth: this.loadingBar.width, fill: '#ffffff',stroke:'#ff0000',strokeThickness:5 });
 		this.loadingPerc.anchor.set(0.5);
@@ -93,6 +96,7 @@ module MUR {
        
     }
 
+	
 
 	
 }

@@ -37,6 +37,10 @@ module MUR {
             win.set(0);
             win.on('value', function (data) { setWinner(data.val()); });
 
+            var reset = this.fb.database().ref('reset');
+            reset.set(false);
+            reset.on('value', function (data) { setReset(data.val());});
+
             var players = this.fb.database().ref('players');
             players.on('child_added', function (data) {
 
@@ -68,21 +72,37 @@ module MUR {
 
         }
 
+         sendReset(): void {
+
+            var reset = this.fb.database().ref('reset');
+            reset.set(true);
+
+         }
+
         resetGame(): void {
 
-            this.removeUsers();
+            this.removeAllUsers();
             var start = this.fb.database().ref('start');
             start.set(false);
             var end = this.fb.database().ref('end');
             end.set(false);
             var winner = this.fb.database().ref('winner');
             winner.set(0);
+           // var reset = this.fb.database().ref('reset');
+           // reset.set(false);
 
         }
 
-        removeUsers(): void {
+        removeAllUsers(): void {
 
             var rem = this.fb.database().ref('players');
+            rem.remove();
+
+        }
+
+        removeAllLogged(): void {
+
+            var rem = this.fb.database().ref('logged');
             rem.remove();
 
         }

@@ -6,6 +6,7 @@ module MUR {
 
         private startBtn: Phaser.Sprite;
         private aboutBtn: Phaser.Sprite;
+        private settingsBtn:Phaser.Sprite;
         private logoGroup: Phaser.Group;
 
         private player1: Phaser.Sprite;
@@ -143,12 +144,18 @@ module MUR {
             this.aboutBtn.inputEnabled = true;
             this.aboutBtn.events.onInputDown.add(function () { MUR.goState("MenuAbout", this.game); }, this);
 
+            this.settingsBtn = this.game.add.sprite(950, 30, "settings-btn");
+            this.settingsBtn.anchor.setTo(0.5);
+            this.settingsBtn.inputEnabled = true;
+            this.settingsBtn.events.onInputDown.add(function () { MUR.goState("MenuSettings", this.game); }, this);
+
+           
 
         }
 
         update() {
 
-
+            if(isGameReset()){ MUR.resetAll(); }
             this.menuBg.tilePosition.x -= 0.5;
 
 

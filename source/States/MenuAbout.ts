@@ -32,13 +32,13 @@ module MUR{
 
 
             var _style:any={font: 'normal 50px', fill: '#ffffff', stroke:'#000000', strokeThickness:5};
-            var _nameTxt = this.game.add.text(this.game.world.width/2,75, "ABOUT", _style);
+            var _nameTxt = this.game.add.text(this.game.world.centerX,75, "ABOUT", _style);
                 _nameTxt.font='Press Start 2P';
                 _nameTxt.anchor.set(.5);
 
 
              _style={font: 'normal 18px', fill: '#ffffff', stroke:'#000000', strokeThickness:0};
-            var _aboutTxt = this.game.add.text(this.game.world.width/2,160, "This game was made using the following technologies", _style);
+            var _aboutTxt = this.game.add.text(this.game.world.centerX,160, "This game was made using the following technologies", _style);
                 _aboutTxt.font='Press Start 2P';
                 _aboutTxt.anchor.set(.5);
 
@@ -69,7 +69,7 @@ module MUR{
                      this.logoGroup.x=80;
 
 
-            this.backBtn=this.game.add.sprite(512,550,this.game.cache.getBitmapData('startBtn'));
+            this.backBtn=this.game.add.sprite(this.game.world.centerX,550,this.game.cache.getBitmapData('startBtn'));
 		    this.backBtn.anchor.setTo(0.5);
 	   			
 	   		var _spriteText=this.game.add.text(0,0, 'BACK', { fill: '#ffffff'});
@@ -79,11 +79,15 @@ module MUR{
 			   
 	   		this.backBtn.inputEnabled = true;
 			this.backBtn.events.onInputDown.add(function(){ MUR.goState("Menu",this.game); }, this);
+
+
+
+            
   }
 
  update() {
 
-
+            if(isGameReset()){ MUR.resetAll(); }
             this.menuBg.tilePosition.x -= 0.5;
 
 

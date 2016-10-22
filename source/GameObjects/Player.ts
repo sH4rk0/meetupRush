@@ -114,7 +114,7 @@ module MUR {
 
             if (this.x > this.gameState.goal) {
 
-                this.gameState.fb.setWinner(this.id);
+                getFbInstance().setWinner(this.id);
                 this.gameState.gameOver();
             }
 
