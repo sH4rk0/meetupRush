@@ -14,12 +14,7 @@ module MUR {
     export class initFb {
 
 
-        private config: any = {
-            apiKey: "AIzaSyDhsh567YIHL1EHfBtHaWKQZt38A6TWfn8",
-            authDomain: "firsttest-79dd5.firebaseapp.com",
-            databaseURL: "https://firsttest-79dd5.firebaseio.com",
-            storageBucket: "",
-        };
+        private config: any = settings.fbConfig;
 
         private fb: firebase.FirebaseApplication = null;
 

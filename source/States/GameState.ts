@@ -30,7 +30,7 @@ module MUR {
                 private startX: number;
                 private startY: number;
 
-                public goal: number = 2000;
+                public goal: number = settings.goalDistance;
                 public fb: initFb;
 
                 constructor() {
@@ -146,12 +146,12 @@ module MUR {
 
                 addStartBtn() {
 
-
-
                         //check for me
                         //if (this.playerObj.id != 199420979) return;
-                        if(this.playerGroup.length>1) return;
+                        // if settings.playerIdStarter is set with a valid meetup user id attach the start only to this user
+                        if(settings.playerIdStarter!=-1 && this.playerObj.id!=settings.playerIdStarter) return;
 
+                        //if(this.playerGroup.length>1) return;
 
                         this.startBtn = this.game.add.sprite(800, 100, this.game.cache.getBitmapData('startBtn'));
                         this.startBtn.anchor.setTo(0.5);
