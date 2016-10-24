@@ -112,7 +112,7 @@ module MUR {
 
         update() {
 
-            if (this.x > this.gameState.goal) {
+            if (this.x > this.gameState.goal-150) {
 
                 getFbInstance().setWinner(this.id);
                 this.gameState.gameOver();

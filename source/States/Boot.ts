@@ -54,6 +54,15 @@ module MUR{
 			bmd.ctx.fill();
 			this.game.cache.addBitmapData('band2', bmd);
 
+			bmd = this.game.add.bitmapData(20,189);
+			bmd.ctx.fillStyle = '#ffffff';
+			bmd.ctx.beginPath();
+			bmd.ctx.rect(0, 0, 20, 189);
+			bmd.ctx.fill();
+			this.game.cache.addBitmapData('goal', bmd);
+
+			
+
 
         }
 

@@ -71,9 +71,12 @@ module MUR {
                         this.introRocks = this.game.add.tileSprite(0, 298, 1024, 96, 'introRocks');
                         this.introRocks.fixedToCamera = true;
 
+                        var _goal:Phaser.Sprite=this.game.add.sprite(this.goal-100,411,this.game.cache.getBitmapData('goal'));
+                        _goal.alpha=0.5;
+
                         this.introRoad = this.game.add.tileSprite(0, 331, 20000, 269, 'introRoad');
                         this.introRoad.fixedToCamera = false;
-                        this.backGroup.addMultiple([this.introSky, this.introCloud1, this.introCloud2, this.introRocks, this.introRoad]);
+                        this.backGroup.addMultiple([this.introSky, this.introCloud1, this.introCloud2, this.introRocks, this.introRoad, _goal]);
 
                         var _style: any = { font: 'normal 30px', fill: '#ffffff', stroke: '#1d5779', strokeThickness: 5 };
                         var _nameTxt = this.game.add.text(10, 10, this.playerObj.name, _style);
@@ -90,7 +93,7 @@ module MUR {
 
                         this.playerGroup = this.game.add.group();
 
-                        //this.game.add.sprite(1200,300,this.game.cache.getBitmapData('circleBtn'));
+                        
 
                         this.fb = MUR.getFbInstance();
 

@@ -225,6 +225,12 @@ var MUR;
             bmd.ctx.rect(0, 0, 1024, 40);
             bmd.ctx.fill();
             this.game.cache.addBitmapData('band2', bmd);
+            bmd = this.game.add.bitmapData(20, 189);
+            bmd.ctx.fillStyle = '#ffffff';
+            bmd.ctx.beginPath();
+            bmd.ctx.rect(0, 0, 20, 189);
+            bmd.ctx.fill();
+            this.game.cache.addBitmapData('goal', bmd);
         };
         Boot.prototype.create = function () {
             this.game.stage.backgroundColor = '#000000';
@@ -327,9 +333,11 @@ var MUR;
             this.introCloud2.tilePosition.x = 0;
             this.introRocks = this.game.add.tileSprite(0, 298, 1024, 96, 'introRocks');
             this.introRocks.fixedToCamera = true;
+            var _goal = this.game.add.sprite(this.goal - 100, 411, this.game.cache.getBitmapData('goal'));
+            _goal.alpha = 0.5;
             this.introRoad = this.game.add.tileSprite(0, 331, 20000, 269, 'introRoad');
             this.introRoad.fixedToCamera = false;
-            this.backGroup.addMultiple([this.introSky, this.introCloud1, this.introCloud2, this.introRocks, this.introRoad]);
+            this.backGroup.addMultiple([this.introSky, this.introCloud1, this.introCloud2, this.introRocks, this.introRoad, _goal]);
             var _style = { font: 'normal 30px', fill: '#ffffff', stroke: '#1d5779', strokeThickness: 5 };
             var _nameTxt = this.game.add.text(10, 10, this.playerObj.name, _style);
             _nameTxt.font = 'Press Start 2P';
@@ -341,7 +349,6 @@ var MUR;
             this.readyText.alpha = 0;
             this.game.add.tween(this.readyText).to({ alpha: 1 }, 500, Phaser.Easing.Quadratic.In, true, 300);
             this.playerGroup = this.game.add.group();
-            //this.game.add.sprite(1200,300,this.game.cache.getBitmapData('circleBtn'));
             this.fb = MUR.getFbInstance();
             this.fb.setUserData(this.playerObj.id, { active: true, id: this.playerObj.id, name: this.playerObj.name, x: this.startX, y: this.startY, avatar: MUR.getAvatar() });
             this.fb.getAll();
@@ -777,7 +784,7 @@ var MUR;
             game.add.existing(this);
         }
         Player.prototype.update = function () {
-            if (this.x > this.gameState.goal) {
+            if (this.x > this.gameState.goal - 150) {
                 MUR.getFbInstance().setWinner(this.id);
                 this.gameState.gameOver();
             }
@@ -1167,7 +1174,7 @@ var settings = {
         storageBucket: "",
     },
     meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
-    goalDistance: 2000,
+    goalDistance: 4000,
     playerIdStarter: -1 //199420979 Francesco Raimondo meetup id
 };
 /// <reference path="../Lib/phaser.d.ts"/>
