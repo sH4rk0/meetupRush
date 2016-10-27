@@ -19,9 +19,10 @@ module MUR {
 
                 public playerGroup: Phaser.Group;
                 public backGroup: Phaser.Group;
-
+                public playerTimer: Phaser.Timer;
 
                 private readyText: Phaser.Text;
+                private timerText: Phaser.Text;
                 private readyOnce: boolean = true;
                 private readyOnceEnd: boolean = true;
                 private currentPlayerExist: boolean = false;
@@ -30,8 +31,9 @@ module MUR {
                 private startX: number;
                 private startY: number;
 
+                private timerEvent: Phaser.TimerEvent;
+
                 public goal: number = settings.goalDistance;
-                public fb: initFb;
 
                 constructor() {
 
@@ -48,10 +50,10 @@ module MUR {
                         this.startY = this.game.rnd.integerInRange(320, 440);
                         this.game.world.setBounds(0, 0, this.goal, 600);
 
-                        this.playerObj = MUR.getPlayerObj();
+                        this.playerObj = getPlayerObj();
 
-                        MUR.setGameState(this);
-                        MUR.setGameStarted(true);
+                        setGameState(this);
+                        setGameStarted(true);
 
                         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -71,8 +73,8 @@ module MUR {
                         this.introRocks = this.game.add.tileSprite(0, 298, 1024, 96, 'introRocks');
                         this.introRocks.fixedToCamera = true;
 
-                        var _goal:Phaser.Sprite=this.game.add.sprite(this.goal-100,411,this.game.cache.getBitmapData('goal'));
-                        _goal.alpha=0.5;
+                        var _goal: Phaser.Sprite = this.game.add.sprite(this.goal - 100, 411, this.game.cache.getBitmapData('goal'));
+                        _goal.alpha = 0.5;
 
                         this.introRoad = this.game.add.tileSprite(0, 331, 20000, 269, 'introRoad');
                         this.introRoad.fixedToCamera = false;
@@ -93,24 +95,34 @@ module MUR {
 
                         this.playerGroup = this.game.add.group();
 
-                        
+                        var totTime:number=(Phaser.Timer.MINUTE * settings.timer.minute) + (Phaser.Timer.SECOND * settings.timer.second);
+                        var totTimeText:number=(60 * settings.timer.minute) + (settings.timer.second);
 
-                        this.fb = MUR.getFbInstance();
+                        _style = { font: 'normal 56px', fill: '#ffffff', stroke: '#0000ff', strokeThickness: 10 };
+                        this.timerText = this.game.add.text(700, 50, this.formatTime(totTimeText), _style);
+                        this.timerText.font = 'Press Start 2P';
+                        this.timerText.fixedToCamera = true;
 
-                        this.fb.setUserData(this.playerObj.id, { active:true, id: this.playerObj.id, name: this.playerObj.name, x: this.startX, y: this.startY, avatar: MUR.getAvatar() });
-                        this.fb.getAll();
+                        this.playerTimer = this.game.time.create();
+                        this.timerEvent = this.playerTimer.add(totTime, this.gameOver, this);
 
+
+                        getFbInstance().setUserData(this.playerObj.id, { active: true, id: this.playerObj.id, name: this.playerObj.name, x: this.startX, y: this.startY, avatar: getAvatar() });
+                        getFbInstance().getAll();
                 }
 
+
                 update() {
-                        if(isGameReset()){ MUR.resetAll(); }
+                        if (isGameReset()) { resetAll(); }
                         this.introCloud1.tilePosition.x -= 0.27;
                         this.introCloud2.tilePosition.x -= 0.13;
 
                         //make it only one time                
-                        if (MUR.getStartRun() && this.readyOnce) {
+                        if (getStartRun() && this.readyOnce) {
 
+                                this.playerTimer.start();
                                 this.readyOnce = false;
+                                this.playerTimer.start();
                                 this.readyText.text = "GO!!!!";
                                 this.readyText.fill = "#00ff00";
                                 this.readyText.stroke = "#1d9a00"
@@ -121,27 +133,44 @@ module MUR {
 
                         }
 
-                        if (MUR.isGameEnded() && this.readyOnceEnd) {
+                        if (this.playerTimer.running) {
+                          this.timerText.text = this.formatTime(Math.round((this.timerEvent.delay - this.playerTimer.ms) / 1000))
 
-                                this.gameOver();
                         }
+
+
+                        /*if (isGameEnded() && this.readyOnceEnd) {
+
+                                this.readyOnceEnd=false;
+                                this.gameOver();
+                        }*/
 
 
                 }
 
+                formatTime(s) {
+                        var minutes: any = "0" + Math.floor(s / 60);
+                        var seconds: any = "0" + (s - minutes * 60);
+                        return minutes.substr(-2) + ":" + seconds.substr(-2);
+                }
 
                 gameOver() {
 
+                        console.log("game over")
+                        
+                        var _time: number = this.playerTimer.ms;
+                        this.playerTimer.stop();
+                        getFbInstance().setWinners(this.playerObj.id, { id: this.playerObj.id, time: _time });
 
                         this.currentPlayerExist = false;
                         this.readyOnceEnd = true;
                         this.readyOnce = true;
                         this.startBtn = undefined;
 
-                        MUR.setGameStarted(false);
-                        MUR.setGameEnded(false);
-                        MUR.setStartRun(false);
-                        MUR.goState("GameOver", this.game);
+                        //setGameStarted(false);
+                        //setGameEnded(false);
+                        //setStartRun(false);
+                        goState("GameOver", this.game);
 
 
                 };
@@ -149,14 +178,16 @@ module MUR {
 
                 addStartBtn() {
 
+                        return;
                         //check for me
                         //if (this.playerObj.id != 199420979) return;
                         // if settings.playerIdStarter is set with a valid meetup user id attach the start only to this user
-                        if(settings.playerIdStarter!=-1 && this.playerObj.id!=settings.playerIdStarter) return;
+
+                        if (settings.playerIdStarter != -1 && this.playerObj.id != settings.playerIdStarter) return;
 
                         //if(this.playerGroup.length>1) return;
 
-                        this.startBtn = this.game.add.sprite(512, this.game.world.centerY+80, this.game.cache.getBitmapData('startBtn'));
+                        this.startBtn = this.game.add.sprite(512, this.game.world.centerY + 80, this.game.cache.getBitmapData('startBtn'));
                         this.startBtn.anchor.setTo(0.5);
 
                         var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
@@ -168,7 +199,7 @@ module MUR {
                         this.backGroup.add(this.startBtn);
                         this.startBtn.events.onInputDown.add(function (context: Phaser.Sprite) {
 
-                                MUR.getFbInstance().startGame();
+                                getFbInstance().startGame();
                                 context.kill();
                                 context.destroy();
 
@@ -208,16 +239,16 @@ module MUR {
 
                 public addPlayer(data: any): void {
 
-                        if(!data.active) return;
+                        if (!data.active) return;
 
-                        var _plId = MUR.getPlayerId();
+                        var _plId = getPlayerId();
                         // console.log(_plId,this.currentPlayerExist)
                         if (data.id == _plId) {
 
                                 if (!this.currentPlayerExist) {
                                         this.currentPlayerExist = true;
                                         //console.log("add Player c",data);
-                                        this.player = new Player(this.game, this, data.id, data.name, true, this.startX, this.startY, MUR.getAvatar());
+                                        this.player = new Player(this.game, this, data.id, data.name, true, this.startX, this.startY, getAvatar());
                                         this.game.camera.follow(this.player);
 
                                         //console.log(this.currentPlayerExist)
@@ -246,16 +277,16 @@ module MUR {
 
                 public addPlayers(data: any): void {
 
-                        if(!data.active) return;
+                        if (!data.active) return;
 
-                        var _plId = MUR.getPlayerId();
+                        var _plId = getPlayerId();
                         //console.log(_plId,this.currentPlayerExist)
                         if (data.id == _plId) {
                                 //current player
 
                                 if (!this.currentPlayerExist) {
                                         console.log("add Players c", data)
-                                        this.player = new Player(this.game, this, data.id, data.name, true, this.startX, this.startY, MUR.getAvatar());
+                                        this.player = new Player(this.game, this, data.id, data.name, true, this.startX, this.startY, getAvatar());
                                         this.game.camera.follow(this.player);
                                         this.currentPlayerExist = true;
 
@@ -275,7 +306,7 @@ module MUR {
                         }
 
                         this.resortGroup();
-                       // console.log("groupPlayer length:" + this.playerGroup.length);
+                        // console.log("groupPlayer length:" + this.playerGroup.length);
                 }
 
                 resortGroup(): void {

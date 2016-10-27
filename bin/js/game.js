@@ -82,7 +82,11 @@ var MUR;
             _spriteText.anchor.set(0.5);
             this.startBtn.addChild(_spriteText);
             this.startBtn.inputEnabled = false;
-            this.startBtn.events.onInputDown.add(function () { MUR.goState("Game", this.game); }, this);
+            this.startBtn.events.onInputDown.add(function () {
+                MUR.getFbInstance().removeAllWinners();
+                MUR.getFbInstance().setWinner(0);
+                MUR.goState("Game", this.game);
+            }, this);
             this.aboutBtn = this.game.add.sprite(994, 30, "about-btn");
             this.aboutBtn.anchor.setTo(0.5);
             this.aboutBtn.inputEnabled = true;
@@ -349,9 +353,16 @@ var MUR;
             this.readyText.alpha = 0;
             this.game.add.tween(this.readyText).to({ alpha: 1 }, 500, Phaser.Easing.Quadratic.In, true, 300);
             this.playerGroup = this.game.add.group();
-            this.fb = MUR.getFbInstance();
-            this.fb.setUserData(this.playerObj.id, { active: true, id: this.playerObj.id, name: this.playerObj.name, x: this.startX, y: this.startY, avatar: MUR.getAvatar() });
-            this.fb.getAll();
+            var totTime = (Phaser.Timer.MINUTE * settings.timer.minute) + (Phaser.Timer.SECOND * settings.timer.second);
+            var totTimeText = (60 * settings.timer.minute) + (settings.timer.second);
+            _style = { font: 'normal 56px', fill: '#ffffff', stroke: '#0000ff', strokeThickness: 10 };
+            this.timerText = this.game.add.text(700, 50, this.formatTime(totTimeText), _style);
+            this.timerText.font = 'Press Start 2P';
+            this.timerText.fixedToCamera = true;
+            this.playerTimer = this.game.time.create();
+            this.timerEvent = this.playerTimer.add(totTime, this.gameOver, this);
+            MUR.getFbInstance().setUserData(this.playerObj.id, { active: true, id: this.playerObj.id, name: this.playerObj.name, x: this.startX, y: this.startY, avatar: MUR.getAvatar() });
+            MUR.getFbInstance().getAll();
         };
         GameState.prototype.update = function () {
             if (MUR.isGameReset()) {
@@ -361,7 +372,9 @@ var MUR;
             this.introCloud2.tilePosition.x -= 0.13;
             //make it only one time                
             if (MUR.getStartRun() && this.readyOnce) {
+                this.playerTimer.start();
                 this.readyOnce = false;
+                this.playerTimer.start();
                 this.readyText.text = "GO!!!!";
                 this.readyText.fill = "#00ff00";
                 this.readyText.stroke = "#1d9a00";
@@ -369,22 +382,37 @@ var MUR;
                 if (this.startBtn != undefined)
                     this.startBtn.destroy();
             }
-            if (MUR.isGameEnded() && this.readyOnceEnd) {
-                this.gameOver();
+            if (this.playerTimer.running) {
+                this.timerText.text = this.formatTime(Math.round((this.timerEvent.delay - this.playerTimer.ms) / 1000));
             }
+            /*if (isGameEnded() && this.readyOnceEnd) {
+
+                    this.readyOnceEnd=false;
+                    this.gameOver();
+            }*/
+        };
+        GameState.prototype.formatTime = function (s) {
+            var minutes = "0" + Math.floor(s / 60);
+            var seconds = "0" + (s - minutes * 60);
+            return minutes.substr(-2) + ":" + seconds.substr(-2);
         };
         GameState.prototype.gameOver = function () {
+            console.log("game over");
+            var _time = this.playerTimer.ms;
+            this.playerTimer.stop();
+            MUR.getFbInstance().setWinners(this.playerObj.id, { id: this.playerObj.id, time: _time });
             this.currentPlayerExist = false;
             this.readyOnceEnd = true;
             this.readyOnce = true;
             this.startBtn = undefined;
-            MUR.setGameStarted(false);
-            MUR.setGameEnded(false);
-            MUR.setStartRun(false);
+            //setGameStarted(false);
+            //setGameEnded(false);
+            //setStartRun(false);
             MUR.goState("GameOver", this.game);
         };
         ;
         GameState.prototype.addStartBtn = function () {
+            return;
             //check for me
             //if (this.playerObj.id != 199420979) return;
             // if settings.playerIdStarter is set with a valid meetup user id attach the start only to this user
@@ -507,12 +535,30 @@ var MUR;
             _super.call(this);
         }
         GameOver.prototype.create = function () {
+            MUR.setGameOver(this);
+            MUR.setGameState(null);
+            MUR.getFbInstance().getWinners();
+            MUR.getFbInstance().removeUser(MUR.getPlayerId());
             this.game.world.setBounds(0, 0, 1024, 600);
             this.game.add.tileSprite(0, 0, 1024, 600, 'menu-background');
             this.game.add.sprite(0, 0, "menu-trasparency");
+            var replayBtn = this.game.add.sprite(512, 550, this.game.cache.getBitmapData('startBtn'));
+            replayBtn.anchor.setTo(0.5);
+            replayBtn.alpha = 0;
+            var _spriteText = this.game.add.text(0, 0, 'RE-PLAY', { fill: '#ffffff' });
+            _spriteText.anchor.set(0.5);
+            replayBtn.addChild(_spriteText);
+            replayBtn.events.onInputDown.add(function () { MUR.setGameOver(null); MUR.goState("Menu", this.game); }, this);
+            var tween = this.game.add.tween(replayBtn).to({ alpha: 1 }, 1000, Phaser.Easing.Quadratic.In, true, 300);
+            tween.onComplete.add(function () {
+                replayBtn.inputEnabled = true;
+            }, replayBtn);
+        };
+        GameOver.prototype.setResult = function (_position) {
+            //console.log("set result" + _position);
             var _style;
             var _result = "";
-            if (MUR.getWinner() === MUR.getPlayerId()) {
+            if (_position <= settings.winners) {
                 _style = { font: 'normal 56px', fill: '#00ff00', stroke: '#ffffff', strokeThickness: 10 };
                 _result = "You win!";
             }
@@ -520,23 +566,16 @@ var MUR;
                 _style = { font: 'normal 56px', fill: '#ff0000', stroke: '#ffffff', strokeThickness: 10 };
                 _result = "You Lose!";
             }
-            var _gameOverText = this.game.add.text(512, this.game.world.height / 2, _result, _style);
+            var medal = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 100, settings.winnersAwards[_position - 1]);
+            medal.anchor.setTo(0.5);
+            medal.alpha = 0;
+            this.game.add.tween(medal).to({ alpha: 1, y: this.game.world.centerY }, 500, Phaser.Easing.Bounce.Out, true, 500);
+            var _gameOverText = this.game.add.text(this.game.world.centerX, this.game.world.centerY - 100, _result, _style);
             _gameOverText.fixedToCamera = false;
+            _gameOverText.alpha = 0;
             _gameOverText.font = 'Press Start 2P';
             _gameOverText.anchor.set(0.5);
-            var replayBtn = this.game.add.sprite(512, 550, this.game.cache.getBitmapData('startBtn'));
-            replayBtn.anchor.setTo(0.5);
-            replayBtn.alpha = 0;
-            var _spriteText = this.game.add.text(0, 0, 'RE-PLAY', { fill: '#ffffff' });
-            _spriteText.anchor.set(0.5);
-            replayBtn.addChild(_spriteText);
-            replayBtn.events.onInputDown.add(function () { MUR.goState("Menu", this.game); }, this);
-            var tween = this.game.add.tween(replayBtn).to({ alpha: 1 }, 1000, Phaser.Easing.Quadratic.In, true, 300);
-            tween.onComplete.add(function () {
-                replayBtn.inputEnabled = true;
-            }, replayBtn);
-            var fb = MUR.getFbInstance();
-            fb.resetGame();
+            this.game.add.tween(_gameOverText).to({ alpha: 1 }, 500, Phaser.Easing.Quadratic.In, true, 500);
         };
         GameOver.prototype.update = function () {
             if (MUR.isGameReset()) {
@@ -561,6 +600,7 @@ var MUR;
     var _newGame;
     var _newList;
     var _gameState;
+    var _gameOver;
     var _fb;
     var _currentPlayer = 0;
     var _gameStarted = false;
@@ -638,6 +678,10 @@ var MUR;
     MUR.setGameState = setGameState;
     function getGameState() { return _gameState; }
     MUR.getGameState = getGameState;
+    function setGameOver(gameState) { _gameOver = gameState; }
+    MUR.setGameOver = setGameOver;
+    function getGameOver() { return _gameOver; }
+    MUR.getGameOver = getGameOver;
     function getFbInstance() { return _fb; }
     MUR.getFbInstance = getFbInstance;
     function setFbInstance(val) { _fb = val; }
@@ -713,7 +757,10 @@ var gameData = {
             { name: "menu-background", path: "assets/images/game/menu-background.jpg" },
             { name: "menu-trasparency", path: "assets/images/game/menu-trasparency.png" },
             { name: "settings-btn", path: "assets/images/game/settings.png" },
-            { name: "about-btn", path: "assets/images/game/about.png" }
+            { name: "about-btn", path: "assets/images/game/about.png" },
+            { name: "medal-gold", path: "assets/images/game/medal-gold.png" },
+            { name: "medal-silver", path: "assets/images/game/medal-silver.png" },
+            { name: "medal-bronze", path: "assets/images/game/medal-bronze.png" }
         ],
         sounds: [],
         bitmapfont: [
@@ -784,9 +831,11 @@ var MUR;
             game.add.existing(this);
         }
         Player.prototype.update = function () {
-            if (this.x > this.gameState.goal - 150) {
-                MUR.getFbInstance().setWinner(this.id);
-                this.gameState.gameOver();
+            if (this.isPlayer) {
+                if (this.x > this.gameState.goal - 150) {
+                    MUR.getFbInstance().setWinner(this.id);
+                    this.gameState.gameOver();
+                }
             }
         };
         Player.prototype.arrowLeft = function () {
@@ -904,7 +953,7 @@ var MUR;
             if (this.lastX != this.x) {
                 this.lastX = this.x;
                 var _obj = { active: true, id: this.id, name: this.name, x: this.x, y: this.y };
-                this.gameState.fb.setUserData(this.id, _obj);
+                MUR.getFbInstance().setUserData(this.id, _obj);
             }
         };
         Player.prototype.checkIdle = function (game) {
@@ -941,7 +990,9 @@ var MUR;
             start.on('value', function (data) { MUR.setStartRun(data.val()); });
             var end = this.fb.database().ref('end');
             end.set(false);
-            end.on('value', function (data) { MUR.setGameEnded(data.val()); });
+            end.on('value', function (data) {
+                // if(data.val()){setGameEnded(data.val());}
+            });
             var win = this.fb.database().ref('winner');
             win.set(0);
             win.on('value', function (data) { MUR.setWinner(data.val()); });
@@ -954,7 +1005,7 @@ var MUR;
                     MUR.getGameState().addPlayer(data.val());
             });
             players.on('child_changed', function (data) {
-                if (MUR.isGameStarted())
+                if (MUR.isGameStarted() && MUR.getGameState() != null)
                     MUR.getGameState().manageData(data.val());
             });
             var logged = this.fb.database().ref('logged');
@@ -989,6 +1040,10 @@ var MUR;
             var rem = this.fb.database().ref('players');
             rem.remove();
         };
+        initFb.prototype.removeAllWinners = function () {
+            var rem = this.fb.database().ref('winners');
+            rem.remove();
+        };
         initFb.prototype.removeAllLogged = function () {
             var rem = this.fb.database().ref('logged');
             rem.remove();
@@ -1011,22 +1066,39 @@ var MUR;
         initFb.prototype.setUserData = function (user, data) {
             this.fb.database().ref("/players/" + user).set(data);
         };
+        initFb.prototype.setWinners = function (user, data) {
+            this.fb.database().ref("/winners/" + user).set(data);
+        };
         initFb.prototype.startGame = function () {
             this.fb.database().ref("/start").set(true);
         };
         initFb.prototype.setWinner = function (val) {
-            if (MUR.getWinner() > 0)
-                return;
             this.fb.database().ref("/winner").set(val);
         };
-        initFb.prototype.endGame = function () {
-            this.fb.database().ref("/end").set(true);
-        };
+        /* endGame(): void {
+ 
+             this.fb.database().ref("/end").set(true);
+ 
+         }
+         */
         initFb.prototype.getAll = function () {
             var _all = this.fb.database().ref('players');
             _all.once('value', function (snapshot) {
                 snapshot.forEach(function (childSnapshot) { if (MUR.isGameStarted())
                     MUR.getGameState().addPlayers(childSnapshot.val()); });
+            });
+        };
+        initFb.prototype.getWinners = function () {
+            var _all = this.fb.database().ref('winners').orderByChild("time").limitToLast(settings.winners);
+            var _counter = 0;
+            _all.once('value', function (snapshot) {
+                snapshot.forEach(function (childSnapshot) {
+                    _counter++;
+                    if (childSnapshot.val().id == MUR.getPlayerId()) {
+                        MUR.getGameOver().setResult(_counter);
+                        d;
+                    }
+                });
             });
         };
         return initFb;
@@ -1174,8 +1246,11 @@ var settings = {
         storageBucket: "",
     },
     meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
-    goalDistance: 4000,
-    playerIdStarter: -1 //199420979 Francesco Raimondo meetup id
+    goalDistance: 1500,
+    playerIdStarter: -1,
+    timer: { minute: 0, second: 30 },
+    winners: 4,
+    winnersAwards: ["medal-gold", "medal-bronze", "medal-bronze", "medal-bronze"]
 };
 /// <reference path="../Lib/phaser.d.ts"/>
 var MUR;

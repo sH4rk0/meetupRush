@@ -117,9 +117,6 @@ module MUR {
                     this.startBtn.alpha = 1;
                     this.startBtn.inputEnabled = true;
 
-
-
-
                 }, this);
 
                 this.avatarsGroup.add(this.players[_p]);
@@ -136,7 +133,13 @@ module MUR {
             this.startBtn.addChild(_spriteText);
 
             this.startBtn.inputEnabled = false;
-            this.startBtn.events.onInputDown.add(function () { MUR.goState("Game", this.game); }, this);
+            this.startBtn.events.onInputDown.add(function () { 
+
+                getFbInstance().removeAllWinners();
+                getFbInstance().setWinner(0);      
+                goState("Game", this.game); 
+            
+        }, this);
 
 
             this.aboutBtn = this.game.add.sprite(994, 30, "about-btn");

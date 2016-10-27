@@ -9,7 +9,9 @@ fbConfig: {
 
  meetupEvent:"https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
  
- goalDistance:4000,
- playerIdStarter: -1 //199420979 Francesco Raimondo meetup id
-
+ goalDistance:1500,
+ playerIdStarter: -1,//199420979 Francesco Raimondo meetup id
+ timer:{minute:0,second:30},
+ winners:4,
+ winnersAwards:["medal-gold","medal-bronze","medal-bronze","medal-bronze"]
 }

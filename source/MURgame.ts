@@ -14,6 +14,7 @@ module MUR {
     let _newGame: initGame;
     let _newList: initList;
     let _gameState: GameState;
+    let _gameOver: GameOver;
     let _fb: initFb;
     let _currentPlayer: number = 0;
     let _gameStarted: boolean = false;
@@ -87,6 +88,9 @@ module MUR {
 
     export function setGameState(gameState: GameState): void { _gameState = gameState; }
     export function getGameState(): GameState { return _gameState; }
+
+    export function setGameOver(gameState: GameOver): void { _gameOver = gameState; }
+    export function getGameOver(): GameOver { return _gameOver; }
 
     export function getFbInstance(): initFb { return _fb }
     export function setFbInstance(val: initFb): void { _fb = val; }
@@ -184,7 +188,10 @@ var gameData = {
             { name: "menu-background", path: "assets/images/game/menu-background.jpg" },
             { name: "menu-trasparency", path: "assets/images/game/menu-trasparency.png" },
             { name: "settings-btn", path: "assets/images/game/settings.png" },
-            { name: "about-btn", path: "assets/images/game/about.png" }
+            { name: "about-btn", path: "assets/images/game/about.png" },
+            { name: "medal-gold", path: "assets/images/game/medal-gold.png" },
+            { name: "medal-silver", path: "assets/images/game/medal-silver.png" },
+            { name: "medal-bronze", path: "assets/images/game/medal-bronze.png" }
             
 
         ],

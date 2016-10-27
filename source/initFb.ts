@@ -31,7 +31,11 @@ module MUR {
 
             var end = this.fb.database().ref('end');
             end.set(false);
-            end.on('value', function (data) { setGameEnded(data.val()); });
+            end.on('value', function (data) {
+                
+                // if(data.val()){setGameEnded(data.val());}
+                
+             });
 
             var win = this.fb.database().ref('winner');
             win.set(0);
@@ -50,7 +54,7 @@ module MUR {
 
             players.on('child_changed', function (data) {
 
-                if (isGameStarted()) getGameState().manageData(data.val());
+                if (isGameStarted() && getGameState()!=null) getGameState().manageData(data.val());
 
             });
 
@@ -100,6 +104,13 @@ module MUR {
 
         }
 
+        removeAllWinners(): void {
+
+            var rem = this.fb.database().ref('winners');
+            rem.remove();
+
+        }
+
         removeAllLogged(): void {
 
             var rem = this.fb.database().ref('logged');
@@ -138,6 +149,11 @@ module MUR {
             this.fb.database().ref("/players/" + user).set(data);
         }
 
+        setWinners(user: number, data: any): void {
+
+            this.fb.database().ref("/winners/" + user).set(data);
+        }
+
         startGame(): void {
 
             this.fb.database().ref("/start").set(true);
@@ -146,17 +162,17 @@ module MUR {
 
         setWinner(val: number): void {
 
-            if (MUR.getWinner() > 0) return;
             this.fb.database().ref("/winner").set(val);
 
         }
 
 
-        endGame(): void {
+       /* endGame(): void {
 
             this.fb.database().ref("/end").set(true);
 
         }
+        */
 
         getAll(): void {
             var _all = this.fb.database().ref('players');
@@ -167,22 +183,26 @@ module MUR {
 
         }
 
-        /*
-            getWinner(){
         
-            var _all = this.fb.database().ref('users').orderByChild("score").limitToLast(1);
-            
+            getWinners():void{
+        
+            var _all = this.fb.database().ref('winners').orderByChild("time").limitToLast(settings.winners);
+            var _counter:number=0;
+             
                 _all.once('value', function(snapshot) {
                     snapshot.forEach(function(childSnapshot) {
-        
-                        //console.log(childSnapshot.val())
+                        _counter++;
+                        if(childSnapshot.val().id == getPlayerId()){  getGameOver().setResult(_counter); d }
                     
                     });
                 });
+              
+               
+             
         
             }
          
-        */
+        
 
 
     }

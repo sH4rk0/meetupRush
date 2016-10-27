@@ -112,11 +112,16 @@ module MUR {
 
         update() {
 
-            if (this.x > this.gameState.goal-150) {
+            if(this.isPlayer){
+
+                 if (this.x > this.gameState.goal-150) {
 
                 getFbInstance().setWinner(this.id);
                 this.gameState.gameOver();
+                }
+
             }
+           
 
         }
 
@@ -239,7 +244,7 @@ module MUR {
             if (this.lastX != this.x) {
                 this.lastX = this.x;
                 var _obj: any = { active:true, id: this.id, name: this.name, x: this.x, y: this.y }
-                this.gameState.fb.setUserData(this.id, _obj);
+                getFbInstance().setUserData(this.id, _obj);
             }
 
 
