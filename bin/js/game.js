@@ -84,7 +84,7 @@ var MUR;
             this.startBtn.inputEnabled = false;
             this.startBtn.events.onInputDown.add(function () {
                 MUR.getFbInstance().removeAllWinners();
-                MUR.getFbInstance().setWinner(0);
+                // getFbInstance().setWinner(0);      
                 MUR.goState("Game", this.game);
             }, this);
             this.aboutBtn = this.game.add.sprite(994, 30, "about-btn");
@@ -555,22 +555,25 @@ var MUR;
             }, replayBtn);
         };
         GameOver.prototype.setResult = function (_position) {
-            //console.log("set result" + _position);
+            console.log("set result" + _position);
             var _style;
             var _result = "";
+            var _y = 0;
             if (_position <= settings.winners) {
                 _style = { font: 'normal 56px', fill: '#00ff00', stroke: '#ffffff', strokeThickness: 10 };
                 _result = "You win!";
+                var medal = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 100, settings.winnersAwards[_position - 1]);
+                medal.anchor.setTo(0.5);
+                medal.alpha = 0;
+                _y = 100;
+                this.game.add.tween(medal).to({ alpha: 1, y: this.game.world.centerY }, 500, Phaser.Easing.Bounce.Out, true, 500);
             }
             else {
                 _style = { font: 'normal 56px', fill: '#ff0000', stroke: '#ffffff', strokeThickness: 10 };
                 _result = "You Lose!";
+                _y = 0;
             }
-            var medal = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 100, settings.winnersAwards[_position - 1]);
-            medal.anchor.setTo(0.5);
-            medal.alpha = 0;
-            this.game.add.tween(medal).to({ alpha: 1, y: this.game.world.centerY }, 500, Phaser.Easing.Bounce.Out, true, 500);
-            var _gameOverText = this.game.add.text(this.game.world.centerX, this.game.world.centerY - 100, _result, _style);
+            var _gameOverText = this.game.add.text(this.game.world.centerX, this.game.world.centerY - _y, _result, _style);
             _gameOverText.fixedToCamera = false;
             _gameOverText.alpha = 0;
             _gameOverText.font = 'Press Start 2P';
@@ -833,7 +836,7 @@ var MUR;
         Player.prototype.update = function () {
             if (this.isPlayer) {
                 if (this.x > this.gameState.goal - 150) {
-                    MUR.getFbInstance().setWinner(this.id);
+                    // getFbInstance().setWinner(this.id);
                     this.gameState.gameOver();
                 }
             }
@@ -1089,16 +1092,21 @@ var MUR;
             });
         };
         initFb.prototype.getWinners = function () {
-            var _all = this.fb.database().ref('winners').orderByChild("time").limitToLast(settings.winners);
+            var _all = this.fb.database().ref('winners').orderByChild("time").limitToFirst(settings.winners);
             var _counter = 0;
+            var _winner = false;
             _all.once('value', function (snapshot) {
                 snapshot.forEach(function (childSnapshot) {
                     _counter++;
+                    console.log(childSnapshot.val().id + " == " + MUR.getPlayerId());
                     if (childSnapshot.val().id == MUR.getPlayerId()) {
+                        _winner = true;
                         MUR.getGameOver().setResult(_counter);
-                        d;
                     }
                 });
+                if (!_winner) {
+                    MUR.getGameOver().setResult(settings.winners + 1);
+                }
             });
         };
         return initFb;
@@ -1248,9 +1256,9 @@ var settings = {
     meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
     goalDistance: 1500,
     playerIdStarter: -1,
-    timer: { minute: 0, second: 30 },
-    winners: 4,
-    winnersAwards: ["medal-gold", "medal-bronze", "medal-bronze", "medal-bronze"]
+    timer: { minute: 2, second: 30 },
+    winners: 3,
+    winnersAwards: ["medal-gold", "medal-silver", "medal-bronze"]
 };
 /// <reference path="../Lib/phaser.d.ts"/>
 var MUR;

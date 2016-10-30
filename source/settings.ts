@@ -11,7 +11,7 @@ fbConfig: {
  
  goalDistance:1500,
  playerIdStarter: -1,//199420979 Francesco Raimondo meetup id
- timer:{minute:0,second:30},
- winners:4,
- winnersAwards:["medal-gold","medal-bronze","medal-bronze","medal-bronze"]
+ timer:{minute:2,second:30},
+ winners:3,
+ winnersAwards:["medal-gold","medal-silver","medal-bronze"]
 }

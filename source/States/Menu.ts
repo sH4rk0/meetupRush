@@ -136,7 +136,7 @@ module MUR {
             this.startBtn.events.onInputDown.add(function () { 
 
                 getFbInstance().removeAllWinners();
-                getFbInstance().setWinner(0);      
+               // getFbInstance().setWinner(0);      
                 goState("Game", this.game); 
             
         }, this);

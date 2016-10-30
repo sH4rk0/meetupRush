@@ -186,15 +186,21 @@ module MUR {
         
             getWinners():void{
         
-            var _all = this.fb.database().ref('winners').orderByChild("time").limitToLast(settings.winners);
+            var _all = this.fb.database().ref('winners').orderByChild("time").limitToFirst(settings.winners);
             var _counter:number=0;
+            var _winner:boolean=false;
              
                 _all.once('value', function(snapshot) {
                     snapshot.forEach(function(childSnapshot) {
                         _counter++;
-                        if(childSnapshot.val().id == getPlayerId()){  getGameOver().setResult(_counter); d }
+
+                        console.log(childSnapshot.val().id +" == "+ getPlayerId())
+                        if(childSnapshot.val().id == getPlayerId()){ _winner=true;  getGameOver().setResult(_counter); }
                     
                     });
+
+                        if(!_winner){getGameOver().setResult(settings.winners+1); }
+
                 });
               
                
