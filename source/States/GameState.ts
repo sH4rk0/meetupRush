@@ -33,6 +33,8 @@ module MUR {
 
                 private timerEvent: Phaser.TimerEvent;
 
+             
+
                 public goal: number = settings.goalDistance;
 
                 constructor() {
@@ -44,6 +46,7 @@ module MUR {
                 preload() { }
 
                 create() {
+         
 
 
                         this.startX = this.game.rnd.integerInRange(50, 60);

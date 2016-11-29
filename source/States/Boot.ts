@@ -79,8 +79,62 @@ module MUR{
 		    this.game.scale.pageAlignHorizontally = true;
     	    this.game.scale.pageAlignVertically = true;
 		    this.game.state.start('Preloader');
-            
-           
+
+
+/*
+			this.scale.minWidth = 480;
+            this.scale.minHeight = 260;
+            this.scale.maxWidth = 1024;
+            this.scale.maxHeight = 768;
+            this.scale.pageAlignHorizontally = true;
+            this.scale.pageAlignVertically = true;
+            this.scale.forceOrientation(true, false);
+            this.scale.hasResized.add(this.gameResized, this);
+            this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
+            this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
+            this.scale.setScreenSize(true);
+   
+
+		
+			var fragmentSrc = [
+            "precision mediump float;",
+            // Incoming texture coordinates. 
+            'varying vec2 vTextureCoord;',
+            // Incoming vertex color
+            'varying vec4 vColor;',
+            // Sampler for a) sprite image or b) rendertarget in case of game.world.filter
+            'uniform sampler2D uSampler;',
+
+            "uniform vec2      resolution;",
+            "uniform float     time;",
+            "uniform vec2      mouse;",
+
+            "void main( void ) {",
+            //"colorRGBA = (y % 2) * texel(u,v);",
+           // "gl_FragColor = mod(gl_FragCoord.y,2.0) * texture2D(uSampler, vTextureCoord);",
+
+		   "gl_FragColor = vColor(0.0, 0.58, 0.86, 1.0);",
+            "}"
+        ];
+
+        var filter = new Phaser.Filter(this.game, null, fragmentSrc);
+        this.game.stage.filters = [filter];
+     
+    */       
         }
+	
+	 gameResized(width:number, height:number) {}
+
+     enterIncorrectOrientation () {}
+
+     leaveIncorrectOrientation () {}
+
+
+
     }
+
+
+
+
+
 }

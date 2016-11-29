@@ -15,7 +15,7 @@ module MUR {
                 height = screen.height * dpr;
             }
             
-            this.game=new Phaser.Game(width, height, Phaser.CANVAS, "",null,false,true);
+            this.game=new Phaser.Game(width, height, Phaser.AUTO, "",null,false,true);
 
             this.game.state.add("Boot", Boot,false);
             this.game.state.add("Preloader", Preloader,false);

@@ -58,6 +58,8 @@ module MUR {
 	   //--------------------------
 		this.game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 
+		//this.game.load.script('filter', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/Marble.js');
+
 		this.loadingBar=this.game.add.sprite(this.game.world.centerX,this.game.world.centerY,this.game.cache.getBitmapData('loadingBar'));
 		this.loadingBar.anchor.setTo(0.5);
 		this.loadingPerc = this.game.add.text(0,0, '0%', {wordWrap: true, wordWrapWidth: this.loadingBar.width, fill: '#ffffff',stroke:'#ff0000',strokeThickness:5 });

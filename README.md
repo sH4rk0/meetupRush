@@ -11,11 +11,11 @@ This game was not made for commercial purpose, only for learning and sharing kno
 ## Online Demo
 Use the following link from 2 or more devices
 
-[mr.zero89.it](http://mr.zero89.it)
+[mr.zero89.it](http://www.zero89.it/mr/)
 
 Use the following link to check the game in 2 or more different browsers instances
 
-[mr.zero89.it?stillFocus=true](http://mr.zero89.it/?stillFocus=true)
+[mr.zero89.it?stillFocus=true](http://www.zero89.it/mr/?stillFocus=true)
 ## How to play
 
 1. Connect to the above url
@@ -28,8 +28,7 @@ Use the following link to check the game in 2 or more different browsers instanc
    * On desktop use left and right arrow to run
    * On mobile use two finger alternate tap
 
-
-![Image Meetup Rush](http://mr.zero89.it/meetup-rush.jpg)
+![Image Meetup Rush](http://www.zero89.it/mr/meetup-rush.jpg)
 
 
 All the resources included are collected for personal projects and non-commercial work.

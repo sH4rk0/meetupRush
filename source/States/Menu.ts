@@ -16,6 +16,7 @@ module MUR {
 
         private players: Array<Phaser.Sprite>;
         private menuBg: Phaser.TileSprite;
+      
 
         private avatarsGroup: Phaser.Group;
 
@@ -30,9 +31,10 @@ module MUR {
         create() {
 
 
+
+
             this.players = new Array;
             this.game.world.setBounds(0, 0, 1024, 600);
-
 
             this.menuBg = this.game.add.tileSprite(0, 0, 1024, 600, 'menu-background');
             this.menuBg.fixedToCamera = true;
@@ -65,9 +67,6 @@ module MUR {
             _nameTxt2.setShadow(1, 1, 'rgba(0,0,0,0.75)', 2);
             _nameTxt2.font = 'Press Start 2P';
             _nameTxt2.alpha = 1;
-
-
-
 
             var _logoutTxt = this.game.add.text(10, 10, "logout", _style);
             _logoutTxt.alpha = 1;
@@ -152,12 +151,16 @@ module MUR {
             this.settingsBtn.inputEnabled = true;
             this.settingsBtn.events.onInputDown.add(function () { MUR.goState("MenuSettings", this.game); }, this);
 
-           
+         
+
+
+   
 
         }
 
         update() {
 
+           
             if(isGameReset()){ MUR.resetAll(); }
             this.menuBg.tilePosition.x -= 0.5;
 

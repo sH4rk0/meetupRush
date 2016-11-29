@@ -150,6 +150,7 @@ var MUR;
             //Loading container
             //--------------------------
             this.game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
+            //this.game.load.script('filter', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/Marble.js');
             this.loadingBar = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, this.game.cache.getBitmapData('loadingBar'));
             this.loadingBar.anchor.setTo(0.5);
             this.loadingPerc = this.game.add.text(0, 0, '0%', { wordWrap: true, wordWrapWidth: this.loadingBar.width, fill: '#ffffff', stroke: '#ff0000', strokeThickness: 5 });
@@ -245,7 +246,50 @@ var MUR;
             this.game.scale.pageAlignHorizontally = true;
             this.game.scale.pageAlignVertically = true;
             this.game.state.start('Preloader');
+            /*
+                        this.scale.minWidth = 480;
+                        this.scale.minHeight = 260;
+                        this.scale.maxWidth = 1024;
+                        this.scale.maxHeight = 768;
+                        this.scale.pageAlignHorizontally = true;
+                        this.scale.pageAlignVertically = true;
+                        this.scale.forceOrientation(true, false);
+                        this.scale.hasResized.add(this.gameResized, this);
+                        this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
+                        this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
+                        this.scale.setScreenSize(true);
+               
+            
+                    
+                        var fragmentSrc = [
+                        "precision mediump float;",
+                        // Incoming texture coordinates.
+                        'varying vec2 vTextureCoord;',
+                        // Incoming vertex color
+                        'varying vec4 vColor;',
+                        // Sampler for a) sprite image or b) rendertarget in case of game.world.filter
+                        'uniform sampler2D uSampler;',
+            
+                        "uniform vec2      resolution;",
+                        "uniform float     time;",
+                        "uniform vec2      mouse;",
+            
+                        "void main( void ) {",
+                        //"colorRGBA = (y % 2) * texel(u,v);",
+                       // "gl_FragColor = mod(gl_FragCoord.y,2.0) * texture2D(uSampler, vTextureCoord);",
+            
+                       "gl_FragColor = vColor(0.0, 0.58, 0.86, 1.0);",
+                        "}"
+                    ];
+            
+                    var filter = new Phaser.Filter(this.game, null, fragmentSrc);
+                    this.game.stage.filters = [filter];
+                 
+                */
         };
+        Boot.prototype.gameResized = function (width, height) { };
+        Boot.prototype.enterIncorrectOrientation = function () { };
+        Boot.prototype.leaveIncorrectOrientation = function () { };
         return Boot;
     }(Phaser.State));
     MUR.Boot = Boot;
@@ -1124,7 +1168,7 @@ var MUR;
             if (!height) {
                 height = screen.height * dpr;
             }
-            this.game = new Phaser.Game(width, height, Phaser.CANVAS, "", null, false, true);
+            this.game = new Phaser.Game(width, height, Phaser.AUTO, "", null, false, true);
             this.game.state.add("Boot", MUR.Boot, false);
             this.game.state.add("Preloader", MUR.Preloader, false);
             this.game.state.add("Menu", MUR.Menu, false);
@@ -1253,8 +1297,8 @@ var settings = {
         databaseURL: "https://firsttest-79dd5.firebaseio.com",
         storageBucket: "",
     },
-    meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234547391&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
-    goalDistance: 1500,
+    meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234497065&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
+    goalDistance: 10000,
     playerIdStarter: -1,
     timer: { minute: 2, second: 30 },
     winners: 3,
