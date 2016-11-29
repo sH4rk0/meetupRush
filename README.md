@@ -11,11 +11,11 @@ This game was not made for commercial purpose, only for learning and sharing kno
 ## Online Demo
 Use the following link from 2 or more devices
 
-[mr.zero89.it](http://www.zero89.it/mr/)
+[www.zero89.it/mr/](http://www.zero89.it/mr/)
 
 Use the following link to check the game in 2 or more different browsers instances
 
-[mr.zero89.it?stillFocus=true](http://www.zero89.it/mr/?stillFocus=true)
+[www.zero89.it/mr/?stillFocus=true](http://www.zero89.it/mr/?stillFocus=true)
 ## How to play
 
 1. Connect to the above url
