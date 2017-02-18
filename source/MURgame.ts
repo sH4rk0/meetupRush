@@ -106,7 +106,7 @@ module MUR {
 
     export function logout(_game: Phaser.Game): void {
 
-        localStorage.removeItem("mrLogged");
+        //localStorage.removeItem("mrLogged");
         getFbInstance().logout(MUR.getPlayerId());
         getListObj().rsvpListShow();
         goState("Preloader", _game);
@@ -124,7 +124,7 @@ module MUR {
 
     export function resetAll(): void{
 
-        localStorage.removeItem("mrLogged");
+        //localStorage.removeItem("mrLogged");
         getFbInstance().resetGame()
         getFbInstance().removeAllLogged();
         window.location.reload();
@@ -139,11 +139,16 @@ module MUR {
         setListObj(new initList());
         setGameObj(new initGame(1024, 600));
 
-        var _obj: any = localStorage.getItem("mrLogged");
+        var _obj: any= localStorage.getItem("mrLogged");
         if (_obj != null) {
+
             _obj = JSON.parse(_obj);
-            setPlayerId(_obj.id);
-            getListObj().rsvpListHide();
+
+             getFbInstance().logout(_obj.id);
+             localStorage.removeItem("mrLogged");
+
+           // setPlayerId(_obj.id);
+           // getListObj().rsvpListHide();
 
         }
 

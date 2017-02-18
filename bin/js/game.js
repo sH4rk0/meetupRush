@@ -363,6 +363,7 @@ var MUR;
         }
         GameState.prototype.preload = function () { };
         GameState.prototype.create = function () {
+            this.selfStart = MUR.getUrlParameter("startBtn") ? true : false;
             this.startX = this.game.rnd.integerInRange(50, 60);
             this.startY = this.game.rnd.integerInRange(320, 440);
             this.game.world.setBounds(0, 0, this.goal, 600);
@@ -456,39 +457,47 @@ var MUR;
         };
         ;
         GameState.prototype.addStartBtn = function () {
-            return;
+            //return;
             //check for me
             //if (this.playerObj.id != 199420979) return;
             // if settings.playerIdStarter is set with a valid meetup user id attach the start only to this user
-            if (settings.playerIdStarter != -1 && this.playerObj.id != settings.playerIdStarter)
-                return;
-            //if(this.playerGroup.length>1) return;
-            this.startBtn = this.game.add.sprite(512, this.game.world.centerY + 80, this.game.cache.getBitmapData('startBtn'));
-            this.startBtn.anchor.setTo(0.5);
-            var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
-            _spriteText.anchor.set(0.5);
-            this.startBtn.addChild(_spriteText);
-            this.startBtn.inputEnabled = true;
-            this.backGroup.add(this.startBtn);
-            this.startBtn.events.onInputDown.add(function (context) {
-                MUR.getFbInstance().startGame();
-                context.kill();
-                context.destroy();
-            }, this.startBtn);
+            if (this.selfStart) {
+                //if (settings.playerIdStarter != -1 && this.playerObj.id != settings.playerIdStarter) return;
+                //if(this.playerGroup.length>1) return;
+                this.startBtn = this.game.add.sprite(512, this.game.world.centerY + 80, this.game.cache.getBitmapData('startBtn'));
+                this.startBtn.anchor.setTo(0.5);
+                var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
+                _spriteText.anchor.set(0.5);
+                this.startBtn.addChild(_spriteText);
+                this.startBtn.inputEnabled = true;
+                this.backGroup.add(this.startBtn);
+                this.startBtn.events.onInputDown.add(function (context) {
+                    MUR.getFbInstance().startGame();
+                    context.kill();
+                    context.destroy();
+                }, this.startBtn);
+            }
         };
         GameState.prototype.render = function () {
             // this.game.debug.cameraInfo(this.game.camera, 500, 32);
             // this.game.debug.spriteCoords(this.player, 32, 32);
         };
         GameState.prototype.manageData = function (data) {
-            if (data.id === this.player.id)
+            if (data == undefined || this.player == undefined || data.id === this.player.id)
                 return;
+            // if (data.id === this.player.id) return;
             var _sprite = this.playerGroup.iterate("id", data.id, 2);
             _sprite.anim[MUR.PlayerStates.IDLE].stop();
             _sprite.anim[MUR.PlayerStates.RUNNING].next(1);
             _sprite.currentState = MUR.PlayerStates.RUNNING;
             _sprite.x = data.x;
             _sprite.checkIdle(this.game);
+        };
+        GameState.prototype.removePlayer = function (data) {
+            if (data == undefined || this.player == undefined || data.id === this.player.id)
+                return;
+            var _sprite = this.playerGroup.iterate("id", data.id, 2);
+            _sprite.kill();
         };
         GameState.prototype.addPlayer = function (data) {
             if (!data.active)
@@ -743,7 +752,7 @@ var MUR;
     }
     MUR.getPlayerObj = getPlayerObj;
     function logout(_game) {
-        localStorage.removeItem("mrLogged");
+        //localStorage.removeItem("mrLogged");
         getFbInstance().logout(MUR.getPlayerId());
         getListObj().rsvpListShow();
         goState("Preloader", _game);
@@ -757,7 +766,7 @@ var MUR;
     }
     MUR.login = login;
     function resetAll() {
-        localStorage.removeItem("mrLogged");
+        //localStorage.removeItem("mrLogged");
         getFbInstance().resetGame();
         getFbInstance().removeAllLogged();
         window.location.reload();
@@ -771,8 +780,8 @@ var MUR;
         var _obj = localStorage.getItem("mrLogged");
         if (_obj != null) {
             _obj = JSON.parse(_obj);
-            setPlayerId(_obj.id);
-            getListObj().rsvpListHide();
+            getFbInstance().logout(_obj.id);
+            localStorage.removeItem("mrLogged");
         }
     };
 })(MUR || (MUR = {}));
@@ -839,6 +848,7 @@ var MUR;
             this.lastRate = 0;
             this.playerSpeed = 0;
             this.anim = new Array;
+            this.autoRun = MUR.getUrlParameter("autoRun") ? true : false;
             this.scale.set(2);
             this.game.physics.arcade.enable(this);
             //var avatar:number=MURgame.getAvatar();
@@ -879,11 +889,21 @@ var MUR;
         }
         Player.prototype.update = function () {
             if (this.isPlayer) {
+                if (this.autoRun) {
+                    if (!MUR.getStartRun())
+                        return;
+                    this.autoRun = false;
+                    this.game.time.events.loop(this.game.rnd.integerInRange(85, 130), this.run, this);
+                }
                 if (this.x > this.gameState.goal - 150) {
                     // getFbInstance().setWinner(this.id);
                     this.gameState.gameOver();
                 }
             }
+        };
+        Player.prototype.run = function () {
+            //console.log(this.nextRate());
+            this.clickRate(this.nextRate());
         };
         Player.prototype.arrowLeft = function () {
             if (!MUR.getStartRun())
@@ -1051,6 +1071,10 @@ var MUR;
                 if (MUR.isGameStarted())
                     MUR.getGameState().addPlayer(data.val());
             });
+            players.on('child_removed', function (data) {
+                if (MUR.isGameStarted())
+                    MUR.getGameState().removePlayer(data.val());
+            });
             players.on('child_changed', function (data) {
                 if (MUR.isGameStarted() && MUR.getGameState() != null)
                     MUR.getGameState().manageData(data.val());
@@ -1058,7 +1082,7 @@ var MUR;
             var logged = this.fb.database().ref('logged');
             logged.on('child_added', function (data) {
                 if (MUR.getListObj().listIsVisible()) {
-                    MUR.getListObj().hideUser(data.val());
+                    MUR.getListObj().joinUser(data.val());
                 }
             });
             var logged = this.fb.database().ref('logged');
@@ -1201,7 +1225,7 @@ var MUR;
             this.$rsvpListContainer = $("#rsvpListContainer");
             this.$rsvpList.css({ width: window.innerWidth, height: window.innerHeight });
             var _arr;
-            _arr = JSON.parse(localStorage.getItem("rsvpData"));
+            //_arr = JSON.parse(localStorage.getItem("rsvpData"));
             // if (_arr==null) {this.loadRsvp();}else{ this.rsvpData=_arr; this.displayRsvp();}
             this.loadRsvp();
         }
@@ -1212,8 +1236,8 @@ var MUR;
         initList.prototype.rsvpListContainerHide = function () { this.$rsvpListContainer.hide(); };
         initList.prototype.rsvpListContainerShow = function () { this.$rsvpListContainer.show(); };
         initList.prototype.listIsVisible = function () { return this.isVisible; };
-        initList.prototype.hideUser = function (val) { $("#member" + val.id).fadeOut(); };
-        initList.prototype.showUser = function (val) { $("#member" + val.id).fadeIn(); };
+        initList.prototype.joinUser = function (val) { $("#member" + val.id).addClass("joined"); };
+        initList.prototype.showUser = function (val) { $("#member" + val.id).removeClass("joined"); };
         initList.prototype.loadRsvp = function () {
             var _this = this;
             if (this.rsvpData == null) {
@@ -1238,7 +1262,7 @@ var MUR;
                             mId = data.results[m].member.member_id;
                             _this.rsvpData.push(new MUR.rsvp(mId, mName, mImage));
                         }
-                        localStorage.setItem("rsvpData", JSON.stringify(_this.rsvpData));
+                        // localStorage.setItem("rsvpData", JSON.stringify(this.rsvpData));
                         _this.displayRsvp();
                     }
                 });
@@ -1259,6 +1283,8 @@ var MUR;
             this.$rsvpList.removeClass("loading");
             function setUpGame(id) {
                 return function () {
+                    if ($("#member" + id).hasClass("joined"))
+                        return;
                     this.isVisible = false;
                     MUR.login(id);
                 };
@@ -1297,11 +1323,11 @@ var settings = {
         databaseURL: "https://firsttest-79dd5.firebaseio.com",
         storageBucket: "",
     },
-    meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=234497065&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
-    goalDistance: 10000,
+    meetupEvent: "https://api.meetup.com/2/rsvps?offset=0&format=json&event_id=236868832&photo-host=public&page=100&fields=&order=name&desc=false&sig_id=199420979&sig=88ec44e6df450a40b3ee0314dd7bf21086a23ccf&key=7c4e4e1e49637797153e102a78283f&sign=true",
+    goalDistance: 5000,
     playerIdStarter: -1,
     timer: { minute: 2, second: 30 },
-    winners: 3,
+    winners: 1,
     winnersAwards: ["medal-gold", "medal-silver", "medal-bronze"]
 };
 /// <reference path="../Lib/phaser.d.ts"/>

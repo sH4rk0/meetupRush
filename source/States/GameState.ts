@@ -11,6 +11,7 @@ module MUR {
                 private introCloud2: Phaser.TileSprite;
                 private introRocks: Phaser.TileSprite;
                 public introRoad: Phaser.TileSprite;
+                private selfStart:boolean;
 
                 private playerObj: rsvp;
 
@@ -47,8 +48,9 @@ module MUR {
 
                 create() {
          
-
-
+                        
+                       
+                        this.selfStart = MUR.getUrlParameter("startBtn") ? true : false;
                         this.startX = this.game.rnd.integerInRange(50, 60);
                         this.startY = this.game.rnd.integerInRange(320, 440);
                         this.game.world.setBounds(0, 0, this.goal, 600);
@@ -136,6 +138,7 @@ module MUR {
 
                         }
 
+                       
                         if (this.playerTimer.running) {
                           this.timerText.text = this.formatTime(Math.round((this.timerEvent.delay - this.playerTimer.ms) / 1000))
 
@@ -151,6 +154,8 @@ module MUR {
 
                 }
 
+
+             
                 formatTime(s) {
                         var minutes: any = "0" + Math.floor(s / 60);
                         var seconds: any = "0" + (s - minutes * 60);
@@ -181,12 +186,15 @@ module MUR {
 
                 addStartBtn() {
 
-                        return;
+                        //return;
                         //check for me
                         //if (this.playerObj.id != 199420979) return;
                         // if settings.playerIdStarter is set with a valid meetup user id attach the start only to this user
 
-                        if (settings.playerIdStarter != -1 && this.playerObj.id != settings.playerIdStarter) return;
+                        if(this.selfStart){
+
+
+                        //if (settings.playerIdStarter != -1 && this.playerObj.id != settings.playerIdStarter) return;
 
                         //if(this.playerGroup.length>1) return;
 
@@ -207,7 +215,7 @@ module MUR {
                                 context.destroy();
 
                         }, this.startBtn);
-
+  }
 
                 }
 
@@ -227,8 +235,8 @@ module MUR {
 
                 public manageData(data: any): void {
 
-
-                        if (data.id === this.player.id) return;
+                        if(data==undefined || this.player==undefined || data.id === this.player.id) return;
+                       // if (data.id === this.player.id) return;
                         var _sprite: Player = this.playerGroup.iterate("id", data.id, 2);
 
                         _sprite.anim[PlayerStates.IDLE].stop();
@@ -238,6 +246,17 @@ module MUR {
                         _sprite.checkIdle(this.game);
 
                 }
+
+                public removePlayer(data: any): void {
+
+                         if(data==undefined || this.player==undefined || data.id === this.player.id) return;
+
+                          var _sprite: Player = this.playerGroup.iterate("id", data.id, 2);
+                          _sprite.kill();
+                         
+
+
+                 }
 
 
                 public addPlayer(data: any): void {

@@ -52,6 +52,12 @@ module MUR {
 
             });
 
+            players.on('child_removed', function (data) {
+
+                if (isGameStarted()) getGameState().removePlayer(data.val());
+
+            });
+
             players.on('child_changed', function (data) {
 
                 if (isGameStarted() && getGameState()!=null) getGameState().manageData(data.val());
@@ -62,7 +68,7 @@ module MUR {
             var logged = this.fb.database().ref('logged');
             logged.on('child_added', function (data) {
                 
-                if(getListObj().listIsVisible()){ getListObj().hideUser(data.val()); } 
+                if(getListObj().listIsVisible()){ getListObj().joinUser(data.val()); } 
 
             });
 

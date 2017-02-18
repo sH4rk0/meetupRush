@@ -26,7 +26,7 @@ module MUR {
             this.$rsvpList.css({ width: window.innerWidth, height: window.innerHeight });
 
             var _arr: Array<rsvp>;
-            _arr = JSON.parse(localStorage.getItem("rsvpData"));
+            //_arr = JSON.parse(localStorage.getItem("rsvpData"));
             // if (_arr==null) {this.loadRsvp();}else{ this.rsvpData=_arr; this.displayRsvp();}
             this.loadRsvp();
 
@@ -41,8 +41,8 @@ module MUR {
         rsvpListContainerShow():void{this.$rsvpListContainer.show();}
         listIsVisible():boolean{return this.isVisible;}
 
-        hideUser(val:any):void{ $("#member" + val.id).fadeOut(); }
-        showUser(val:any):void{ $("#member" + val.id).fadeIn(); }
+        joinUser(val:any):void{ $("#member" + val.id).addClass("joined"); }
+        showUser(val:any):void{ $("#member" + val.id).removeClass("joined") }
 
         loadRsvp(): void {
 
@@ -77,7 +77,7 @@ module MUR {
 
                         }
                         
-                        localStorage.setItem("rsvpData", JSON.stringify(this.rsvpData));
+                       // localStorage.setItem("rsvpData", JSON.stringify(this.rsvpData));
 
                         this.displayRsvp();
 
@@ -118,7 +118,7 @@ module MUR {
 
                 return function () {
 
-
+                    if($("#member" + id).hasClass("joined")) return;
                     this.isVisible=false;
                     MUR.login(id);
                    

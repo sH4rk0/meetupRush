@@ -28,6 +28,7 @@ module MUR {
         private cursors: Phaser.CursorKeys;
         private lastX: number;
         private lastTap: number;
+        private autoRun:boolean;
 
         id: number;
 
@@ -51,6 +52,8 @@ module MUR {
             this.playerSpeed = 0;
 
             this.anim = new Array;
+
+            this.autoRun = MUR.getUrlParameter("autoRun") ? true : false;
 
 
             this.scale.set(2);
@@ -114,14 +117,36 @@ module MUR {
 
             if(this.isPlayer){
 
+                if(this.autoRun){
+                    if (!MUR.getStartRun()) return;
+
+                    this.autoRun=false;
+                    this.game.time.events.loop(this.game.rnd.integerInRange(85,130), this.run, this);
+
+                
+                }
+
                  if (this.x > this.gameState.goal-150) {
 
                // getFbInstance().setWinner(this.id);
                 this.gameState.gameOver();
                 }
 
+
+
             }
+
+
            
+
+        }
+
+
+        run(){
+            
+            //console.log(this.nextRate());
+
+            this.clickRate(this.nextRate());
 
         }
 
